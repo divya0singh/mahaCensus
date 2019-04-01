@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+        <title>Mahacensus</title>
+        <link rel="stylesheet" href="src/leaflet.css">
+        <link rel="stylesheet" href="src/css/bootstrap.css">
+        <link rel="stylesheet" href="src/plugins/L.Control.Pan.css">
+        <link rel="stylesheet" href="src/plugins/L.Control.Zoomslider.css">
+        <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
+        <link rel="stylesheet" href="src/plugins/L.Control.Sidebar.css">
+        <link rel="stylesheet" href="src/plugins/Leaflet.PolylineMeasure.css">
+        <link rel="stylesheet" href="src/plugins/easy-button.css">
+        <link rel="stylesheet" href="src/css/animate.min.css">
+        <link rel="stylesheet" href="src/css/bootstrap-dropdownhover.css">
+
+        <link rel="stylesheet" href="src/plugins/leaflet-opencage/src/css/L.Control.OpenCageSearch.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="src/js/bootstrap-dropdownhover.js"></script>
+        
+
+
+        <script src="src/leaflet-src.js"></script>
+     <!--    <script src="src/jquery-3.2.0.min.js"></script> -->
+        <script src="src/plugins/L.Control.Pan.js"></script>
+        <script src="src/plugins/L.Control.Zoomslider.js"></script>
+        <script src="src/plugins/L.Control.MousePosition.js"></script>
+        <script src="src/plugins/L.Control.Sidebar.js"></script>
+        <script src="src/plugins/Leaflet.PolylineMeasure.js"></script>
+        <script src="src/plugins/easy-button.js"></script>
+        <script src="src/plugins/leaflet-providers.js"></script>
+        <script src="src/plugins/leaflet-opencage/src/js/L.Control.OpenCageSearch.js"></script>
+        <script src="src/leaflet.wms.js"></script>
+        <link rel="stylesheet" type="text/css" href="src/css/component.css" />
+        <script src="src/plugins/leaflet.ajax.min.js"></script>
+        <script src="src/js/modernizr-custom.js"></script>
+        <style>
+            #mapdiv {
+                height:100vh;
+            }
+
+            #side-bar {
+                background-color: #ffffff;
+                /* text-decoration-color: red; */
+            }
+            /* unvisited link */
+            a:link {
+            color: black;
+            }
+
+            /* visited link */
+            a:visited {
+            color: black;
+            }
+
+            /* mouse over link */
+            a:hover {
+            color: blue;
+            }
+
+            a:active {
+            color: blue;
+            }
+            #menu__link{
+              color: aqua;  
+            }
+
+            
+
+            .col-xs-12, .col-xs-6, .col-xs-4 {
+                padding:3px;
+            }
+
+            #divProject {
+                background-color: beige;
+            }
+            
+            #divBUOWL {
+                background-color: #ffffb3;
+            }
+            
+            #divEagle {
+                background-color: #ccffb3;
+                width: auto;
+            }
+            
+            #divRaptor {
+                background-color: #e6ffff;
+            }
+            
+            .errorMsg {
+                padding:0;
+                text-align:center;
+                background-color:darksalmon;
+            }
+            
+        	/*checkbox*/
+        	.multiselect{
+        		width: 200px;
+        	}
+        	.selectBox{
+        		position: relative;;
+        	}
+        	.selectBox select{
+        		width: 100%;
+        		font-weight: bold;
+        	}
+        	.overSelect{
+        		position: absolute;
+        		left: 0; right: 0; top: 0; bottom: 0;
+        	}
+        	#checkbox {
+        		display: none;
+        		border: 1px #dadada solid;
+        	}
+        	#checkbox label{
+        		display: block;
+        	}
+        	#checkbox label:hover{
+        		background-color: #le90ff;
+        	}
+
+
+        </style>
+	<script type="text/javascript">
+		function populate(sdiv,sdis){
+			var sdiv = document.getElementById(sdiv);
+			var sdis = document.getElementById(sdis);
+			sdis.innerHTML = "";
+			if(sdiv.value == "Amravati"){
+				var optionArray = ["|","amravat|Amravati","akola|Akola","buldhana|Buldhana","washim|Washim","yavatmal|Yavatmal"];
+			}
+			else if(sdiv.value == "Aurangabad"){
+				var optionArray = ["|","aurang|Aurangabad","jalna|Jalna","parbhani|Parbhani","hingoli|Hingoli","nanded|Nanded","beed|Beed","latur|Latur","osmanabad|Osmanabad"];
+			}
+			else if(sdiv.value == "Konkan"){
+				var optionArray = ["|","mumbaisu|Mumbai Sub-Urban","mumbaicity|Mumbia city","thane|Thane","raigad|Raigad","ratnagiri|Ratnagiri","sindhdurg|Sindhudurg"];
+			}
+			else if(sdiv.value == "Nagpur"){
+				var optionArray = ["|","nagpur|Nagpur","wardha|Wardha","bhandara|Bhandara","chandrapur|Chandrapur","gondia|Gondia","gadchiroli|Gadchiroli"];
+			}
+			else if(sdiv.value == "Nashik"){
+				var optionArray = ["|","nandurbar|Nandurbar","nashik|Nahsik","dhule|Dhule","ahmednagar|Ahmendnagar"];
+			}
+			else if(sdiv.value == "Pune"){
+				var optionArray = ["|","pune|Pune","solapur|Solapur","satara|Satara","sangali|Sangali","kolhapur|Kolhapur"];
+			}
+			for(var option in optionArray){
+				var pair = optionArray[option].split("|");
+				var newOption = document.createElement("option");
+				newOption.value = pair[0];
+				newOption.innerHTML = pair[1];
+				sdis.options.add(newOption); 
+			}
+		}
+
+		//checkbox
+		// var expanded = false;
+		// function showcheckbox(){
+		// 	var checkboxes = document.getElementById("checkbox");
+		// 	if (!expanded) {
+		// 		checkboxes.style.display = "block";
+		// 		expanded= true;
+		// 	}
+		// 	else{
+		// 		checkboxes.style.display = "none";
+		// 		expanded= false;
+
+		// 	}
+		// }
+	</script>
+</head>
+<body>
+	<div id="side-bar">
+		<div>
+				<div id="amenities-menu">
+			<h2>Choose Amenities</h2>
+				<select id="select_ame" name="select_ame">
+					<option value=""></option>
+					<option value="Village_Amenities"> Village Amenities</option>
+					<option value="Town_Amenities"> Town Amenities</option>
+					<option value="Demographic_Amenities"> Demographic Amenities</option>
+					<option value="Household_Amenities"> Household Amenities</option>
+					<option value="Ground_Water"> Ground Water</option>
+				</select>
+			</div>
+				<hr /> 
+			<!-- <div class="multiselect">
+					<div class="selectBox" onclick="showcheckbox()">
+					<select>
+						<option>Select division(s)</option>
+					</select>
+					<div class="overSelect"></div>
+				</div>
+				<div id="checkbox">
+					<select id="select_div" name="select_div" onchange="populate(this.id,'select_dis')">
+						<option value=""></option>
+						<option value="Amravati"><input  type="checkbox" id="Amravati">Amravati</option>
+						<option value="Aurangabad"> <input type="checkbox" id="Aurangabad">Aurangabad</option>
+						<option value="Konkan"><input type="checkbox" id="Konkan"> Konkan</option>
+						<option value="Nagpur"><input type="checkbox" id="Nagpur"> Nagpur</option>
+						<option value="Nashik"><input type="checkbox" id="Nashik"> Nashik</option>
+						<option value="Pune"><input type="checkbox" id="Pune">Pune</option>
+					</select>
+				</div> -->
+				<!-- <div id="select_div" name="select_div"  >
+					<label for="Amravati" ><input  type="checkbox" id="Amravati">Amravati</label>
+					<label for="Aurangabad"><input type="checkbox" id="Aurangabad">Aurangabad</label>
+					<label for="Konkan"><input type="checkbox" id="Konkan">Konkan</label>
+					<label for="Nagpur"><input type="checkbox" id="Nagpur">Nagpur</label>
+					<label for="Nashik"><input type="checkbox" id="Nashik">Nashik</label>
+					<label for="Pune"><input type="checkbox" id="Pune">Pune</label>
+				</div> -->
+				<div id="division-menu">
+					<h2>Choose Division</h2>
+					<select id="select_div" name="select_div" onchange="populate(this.id,'select_dis')">
+						<option value=""></option>
+						<option value="Amravati"><a id="locateamravati" href="#">Amravati</a></option>
+						<option value="Aurangabad"> <a id="locateaurangabad" href="#">Aurangabad</a></option>
+						<option value="Konkan"><a id="locatekonkan" href="#"> Konkan</a></option>
+						<option value="Nagpur"><a id="locatenagpur" href="#"> Nagpur</a></option>
+						<option value="Nashik"><a id="locatenashik" href="#"> Nashik</a></option>
+						<option value="Pune"><a id="locatepune" href="#">Pune</a></option>
+					</select>
+				</div>
+			</div>
+			<div id="district-menu">
+				<h2>Choose District</h2>
+				<select id="select_dis" name="select_dis" >
+					<option value=""></option>
+				</select>
+			</div>
+
+			<div id="btn_submit">
+				<input type="submit" name="submit" onclick="display('select_ame','select_div','select_dis')">
+				
+			</div>
+		</div>
+		 <script src="src/js/classie.js"></script>
+                <!-- <script src="js/dummydata.js"></script> -->
+                <script src="src/js/main.js"></script>
+                <script>
+                (function() {
+                    var menuEl = document.getElementById('ml-menu'),
+                        mlmenu = new MLMenu(menuEl, {
+                            // breadcrumbsCtrl : true, // show breadcrumbs
+                            // initialBreadcrumb : 'all', // initial breadcrumb text
+                            backCtrl : false, // show back button
+                            // itemsDelayInterval : 60, // delay between each menu item sliding animation
+                            onItemClick: loadDummyData // callback: item that doesn´t have a submenu gets clicked - onItemClick([event], [inner HTML of the clicked item])
+                        });
+            
+                    // mobile menu toggle
+                    var openMenuCtrl = document.querySelector('.action--open'),
+                        closeMenuCtrl = document.querySelector('.action--close');
+            
+            
+                    function openMenu() {
+                        classie.add(menuEl, 'menu--open');
+                        closeMenuCtrl.focus();
+                    }
+            
+            
+                    // simulate grid content loading
+                    var gridWrapper = document.querySelector('.content');
+            
+                    function loadDummyData(ev, itemName) {
+                        ev.preventDefault();
+            
+                     
+                    }
+                })();
+                </script>
+	</div>
+	<div id="mapdiv" class="col-md-12"></div>
+	<script>
+
+            var mymap;
+            var lyrOSM;
+            var lyrWatercolor;
+            var lyrTopo;
+            var lyrImagery;
+            var lyrOutdoors;
+            // var lyrChapultepec;
+            var mrkCurrentLocation;
+            var popZocalo;
+            var ctlAttribute;
+            var ctlScale;
+            var ctlPan;
+            var ctlZoomslider;
+            var ctlMouseposition;
+            var ctlMeasure;
+            var ctlEasybutton;
+            var ctlSidebar;
+            var ctlSearch;
+            var ctlLayers;
+            var objBasemaps;
+            var objOverlays;
+            var buldhanaVlyr,washimVlyr,yavatmalVlyr,jalnaVlyr,aurangVlyr;
+            var akolaVlyr,akolaTlyr,akolaDlyr,akolaHlyr,amravVlyr,amravDlyr,amravHlyr;
+            var source = L.wms.source(
+                "http://13.82.229.27/geoserver/wfs",
+                {
+                    "format": "image/png",
+                    "transparent": "true"
+                }        
+                );
+            function display(s0,s1,s2) {
+			// body...
+			var s0= document.getElementById(s0);
+			var s1= document.getElementById(s1);
+			var s2= document.getElementById(s2);
+			if (s0.value=="Village_Amenities") {
+				if(s1.value=="Amravati")
+				{
+					if(s2.value=="amravat")
+					{
+						console.log('this is village amenity data of amravati');
+		                if(amravVlyr){
+		                    amravVlyr.remove(mymap);
+		                    amravVlyr = 0;
+		                }else{
+		                    amravVlyr = source.getLayer("geonode:v_amravati").addTo(mymap);
+		                }
+
+					}
+					else if(s2.value=="akola"){
+						console.log('this is village amenity data of Akola');
+		                if(akolaVlyr){
+		                    akolaVlyr.remove(mymap);
+		                    akolaVlyr = 0;
+		                }else{
+		                    akolaVlyr = source.getLayer("geonode:v_akola").addTo(mymap);
+		                }
+					}
+					else if(s2.value=="buldhana"){
+						console.log('this is village amenity data of buldana');
+		                if(buldhanaVlyr){
+		                    buldhanaVlyr.remove(mymap);
+		                    buldhanaVlyr = 0;
+		                }else{
+		                    buldhanaVlyr = source.getLayer("geonode:v_buldhana").addTo(mymap);
+		                }
+					}
+					else if(s2.value=="washim"){
+						console.log('this is village amenity data of washim');
+		                if(washimVlyr){
+		                    washimVlyr.remove(mymap);
+		                    washimVlyr = 0;
+		                }else{
+		                    washimVlyr = source.getLayer("geonode:v_washim").addTo(mymap);
+		                }
+					}
+					else if(s2.value=="yavatmal"){
+						console.log('this is village amenity data of yavatmal');
+		                if(yavatmalVlyr){
+		                    yavatmalVlyr.remove(mymap);
+		                    yavatmalVlyr = 0;
+		                }else{
+		                    yavatmalVlyr = source.getLayer("geonode:v_yavatmal").addTo(mymap);
+		                }
+					}
+				}
+				else if(s1.value=="Aurangabad")
+				{
+					if (s2.value=="aurang") {
+						console.log('this is village amenity data of amravati');
+		                if(aurangVlyr){
+		                    aurangVlyr.remove(mymap);
+		                    aurangVlyr = 0;
+		                }else{
+		                    aurangVlyr = source.getLayer("geonode:v_aurangabad ").addTo(mymap);
+		                }
+					}
+					else if (s2.value=="jalna") {
+						console.log('this is village amenity data of amravati');
+		                if(jalnaVlyr){
+		                    jalnaVlyr.remove(mymap);
+		                    jalnaVlyr = 0;
+		                }else{
+		                    jalnaVlyr = source.getLayer("geonode:v_jalna").addTo(mymap);
+		                }
+					}
+
+				}
+			}
+		}
+
+            $(document).ready(function(){
+                mymap = L.map('mapdiv', {center:[19.0760, 72.8777], zoom:6, zoomControl:false, attributionControl:false});
+                lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
+                // lyrTopo = L.tileLayer.provider('OpenTopoMap');
+                lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
+                // lyrOutdoors = L.tileLayer.provider('Thunderforest.Outdoors');
+                // lyrWatercolor = L.tileLayer.provider('Stamen.Watercolor');
+                mymap.addLayer(lyrOSM);
+                
+                // lyrChapultepec = L.imageOverlay('img/chapultepec.png', [[19.42993,-99.20843],[19.40621,-99.17453]], {opacity:0.5}).addTo(mymap);
+                
+                objBasemaps = {
+                    "Open Street Maps": lyrOSM,
+                    // "Topo Map":lyrTopo,
+                    "Imagery":lyrImagery
+                    // "Outdoors":lyrOutdoors,
+                    // "Watercolor":lyrWatercolor
+                };
+                
+                objOverlays = {
+                    // "Chapultepec Image":lyrChapultepec
+                };
+                
+                ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
+                
+                // ctlPan = L.control.pan().addTo(mymap);
+                ctlZoomslider = L.control.zoomslider({position:'topright'}).addTo(mymap);
+                
+                ctlMeasure = L.control.polylineMeasure().addTo(mymap);
+                ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
+                
+                ctlEasybutton = L.easyButton('glyphicon-transfer', function(){
+                   ctlSidebar.toggle(); 
+                }).addTo(mymap);
+                
+                ctlSearch = L.Control.openCageSearch({key: '3c38d15e76c02545181b07d3f8cfccf0',limit: 10}).addTo(mymap);
+                
+                ctlAttribute = L.control.attribution({position:'bottomleft'}).addTo(mymap);
+                ctlAttribute.addAttribution('OSM');
+                ctlAttribute.addAttribution('&copy; <a href="http://millermountain.com">Miller Mountain LLC</a>');
+                
+                ctlScale = L.control.scale({position:'bottomleft', metric:false, maxWidth:200}).addTo(mymap);
+                ctlMouseposition = L.control.mousePosition().addTo(mymap);
+                
+                popZocalo = L.popup({maxWidth:200,keepInView:true});
+               // popZocalo.setLatLng([19.43262, -99.13325]);
+                popZocalo.setContent("<h2>Zocalo</h2><img src='img/zocalo.jpg' width='200px'>");
+                
+                mymap.on('contextmenu', function(e) {
+                    var dtCurrentTime = new Date();
+                    L.marker(e.latlng).addTo(mymap).bindPopup(e.latlng.toString()+"<br>"+dtCurrentTime.toString());
+                });
+                
+                mymap.on('keypress', function(e) {
+                    if (e.originalEvent.key=="l") {
+                        mymap.locate();
+                    }
+                });
+                
+                mymap.on('locationfound', function(e) {
+                    console.log('buildin');
+                    // if (mrkCurrentLocation) {
+                    //     mrkCurrentLocation.remove();
+                    // }
+                    // mrkCurrentLocation = L.circle(e.latlng, {radius:e.accuracy/2}).addTo(mymap);
+                    // mymap.setView(e.latlng, 14);
+                });
+                
+                mymap.on('locationerror', function(e) {
+                    console.log(e);
+                    alert("Location was not found");
+                })
+                
+                mymap.on('zoomend', function(){
+                    $("#zoom-level").html(mymap.getZoom());
+                });
+                
+                mymap.on('moveend', function(){
+                    $("#map-center").html(LatLngToArrayString(mymap.getCenter()));
+                });
+                
+                mymap.on('mousemove', function(e){
+                    $("#mouse-location").html(LatLngToArrayString(e.latlng));
+                });
+                
+               
+
+                $("#locateamravati").click(function(){
+                    mymap.setView([20.895796, 77.860849], 7);
+                    // mymap.openPopup(popZocalo);
+                });
+
+                $("#locateaurangabad").click(function(){
+                    mymap.setView([18.754517, 77.042162], 7);
+                    // mymap.openPopup(popZocalo);
+                });
+
+                $("#locatenashik").click(function(){
+                    mymap.setView([20.098749, 74.303233], 7);
+                    // mymap.openPopup(popZocalo);
+                });
+
+                $("#locatenagpur").click(function(){
+                    mymap.setView([21.075189, 79.173687], 7);
+                    // mymap.openPopup(popZocalo);
+                });
+
+                $("#locatekonkan").click(function(){
+                    mymap.setView([18.704502,73.248372], 7);
+                    // mymap.openPopup(popZocalo);
+                });
+
+                $("#locatepune").click(function(){
+                    mymap.setView([18.5204, 73.8567], 7);
+                    // mymap.openPopup(popZocalo);
+                });
+
+             
+                $("#sldOpacity").on('change', function(){
+                    $("#image-opacity").html(this.value);
+                    lyrChapultepec.setOpacity(this.value);
+                });
+            }); //end of ready function
+           
+
+   //          function LatLngToArrayString(ll) {
+			// //console.log(ll);
+   //              return "["+ll.lat.toFixed(5)+""+ll.lng.toFixed(5)+"]";
+   //          }
+        
+	</script>
+</body>
+</html>
